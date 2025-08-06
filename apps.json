@@ -1,0 +1,34 @@
+[
+  {
+    "name_en": "TomTom for iOS 6",
+    "name_fa": "تام‌تام برای آی‌اواس ۶",
+    "source": "Archive.org",
+    "icon": "https://via.placeholder.com/60?text=TomTom",
+    "install_url": "https://archive.org/download/tomtom_202209",
+    "ios_version": "6"
+  },
+  {
+    "name_en": "iOS 7+ Collection",
+    "name_fa": "مجموعه آی‌اواس ۷ و بالاتر",
+    "source": "Archive.org",
+    "icon": "https://via.placeholder.com/60?text=iOS7+",
+    "install_url": "https://archive.org/download/ios7pluscollection",
+    "ios_version": "7-8"
+  },
+  {
+    "name_en": "The Elements Visual",
+    "name_fa": "مجموعه عناصر بصری",
+    "source": "Archive.org",
+    "icon": "https://via.placeholder.com/60?text=Elements",
+    "install_url": "https://archive.org/download/the.-elements.-a.-visual.-explorati.",
+    "ios_version": "8"
+  },
+  {
+    "name_en": "Asphalt 9 Hacked",
+    "name_fa": "آسفالت ۹ هک شده",
+    "source": "Archive.org",
+    "icon": "https://via.placeholder.com/60?text=Asphalt9",
+    "install_url": "https://archive.org/download/asphalt-9-hacked",
+    "ios_version": "9"
+  }
+]
