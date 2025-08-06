@@ -1,39 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>ImTheApp Store</title>
-<style>
-  body { font-family: Arial, sans-serif; margin: 10px; background: #f9f9f9; color: #222; }
-  header { text-align: center; margin-bottom: 20px; }
-  header img { height: 60px; vertical-align: middle; }
-  header h1 { display: inline-block; margin-left: 10px; vertical-align: middle; }
-  #langSelect { margin-top: 10px; }
-  .tabs { margin-bottom: 10px; text-align: center; }
-  .tab-button {
-    background: #007aff; color: white; border: none; padding: 10px 15px; margin: 0 3px; cursor: pointer;
-    border-radius: 4px;
-  }
-  .tab-button.active { background: #004bb5; }
-  #searchInput {
-    width: 90%; max-width: 400px; padding: 8px; margin: 10px auto; display: block; border-radius: 5px; border: 1px solid #ccc;
-  }
-  #appList { max-width: 600px; margin: 0 auto; }
-  .app-item {
-    background: white; padding: 10px; margin-bottom: 8px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    display: flex; align-items: center;
-  }
-  .app-icon { width: 60px; height: 60px; border-radius: 12px; background: #ddd; flex-shrink: 0; }
-  .app-info { flex-grow: 1; margin-left: 12px; }
-  .app-name { font-size: 18px; margin: 0; }
-  .app-source { font-size: 12px; color: #555; margin: 3px 0 0 0; }
-  .install-button {
-    background: #28a745; border: none; color: white; padding: 8px 14px; border-radius: 5px; cursor: pointer;
-    flex-shrink: 0;
-  }
-  .install-button:hover { background: #218838; }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ImTheApp Store</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 10px; background: #f9f9f9; color: #222; direction: ltr; }
+    header { text-align: center; margin-bottom: 20px; }
+    header img { height: 60px; vertical-align: middle; }
+    header h1 { display: inline-block; margin-left: 10px; vertical-align: middle; }
+    #langSelect { margin-top: 10px; }
+    .tabs { margin-bottom: 10px; text-align: center; }
+    .tab-button {
+      background: #007aff; color: white; border: none; padding: 10px 15px; margin: 0 3px; cursor: pointer;
+      border-radius: 4px;
+    }
+    .tab-button.active { background: #004bb5; }
+    #searchInput {
+      width: 90%; max-width: 400px; padding: 8px; margin: 10px auto; display: block; border-radius: 5px; border: 1px solid #ccc;
+    }
+    #appList { max-width: 600px; margin: 0 auto; }
+    .app-item {
+      background: white; padding: 10px; margin-bottom: 8px; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      display: flex; align-items: center;
+    }
+    .app-icon { width: 60px; height: 60px; border-radius: 12px; background: #ddd; flex-shrink: 0; }
+    .app-info { flex-grow: 1; margin-left: 12px; }
+    .app-name { font-size: 18px; margin: 0; }
+    .app-source { font-size: 12px; color: #555; margin: 3px 0 0 0; }
+    .install-button {
+      background: #28a745; border: none; color: white; padding: 8px 14px; border-radius: 5px; cursor: pointer;
+      flex-shrink: 0;
+    }
+    .install-button:hover { background: #218838; }
+  </style>
 </head>
 <body>
 
@@ -57,7 +57,7 @@
 <div id="appList"></div>
 
 <script>
-  const appsUrl = 'apps.json'; // apps.json file in same folder
+  const appsUrl = 'apps.json';
   let appsData = [];
   let currentVersion = '6';
   let currentLang = 'en';
@@ -66,19 +66,28 @@
   const appList = document.getElementById('appList');
   const searchInput = document.getElementById('searchInput');
   const langSelect = document.getElementById('langSelect');
+  const title = document.getElementById('title');
 
   function renderApps() {
     const searchTerm = searchInput.value.toLowerCase();
     appList.innerHTML = '';
+
     const filtered = appsData.filter(app => {
-      if (app.ios_version !== currentVersion) return false;
+      if (currentVersion === '7-8') {
+        if (app.ios_version !== '7' && app.ios_version !== '8') return false;
+      } else {
+        if (app.ios_version !== currentVersion) return false;
+      }
       const name = currentLang === 'en' ? app.name_en : app.name_fa;
       return name.toLowerCase().includes(searchTerm);
     });
+
     if (filtered.length === 0) {
-      appList.innerHTML = '<p style="text-align:center; color:#888;">' + (currentLang === 'en' ? 'No apps found' : 'برنامه‌ای یافت نشد') + '</p>';
+      appList.innerHTML = '<p style="text-align:center; color:#888;">' + 
+        (currentLang === 'en' ? 'No apps found' : 'برنامه‌ای یافت نشد') + '</p>';
       return;
     }
+
     filtered.forEach(app => {
       const appDiv = document.createElement('div');
       appDiv.className = 'app-item';
@@ -91,6 +100,7 @@
 
       const info = document.createElement('div');
       info.className = 'app-info';
+
       const name = document.createElement('p');
       name.className = 'app-name';
       name.textContent = currentLang === 'en' ? app.name_en : app.name_fa;
@@ -98,7 +108,7 @@
 
       const source = document.createElement('p');
       source.className = 'app-source';
-      source.textContent = app.source;
+      source.textContent = (currentLang === 'en' ? 'Source: ' : 'منبع: ') + app.source;
       info.appendChild(source);
 
       appDiv.appendChild(info);
@@ -129,6 +139,7 @@
   langSelect.addEventListener('change', () => {
     currentLang = langSelect.value;
     document.body.dir = currentLang === 'fa' ? 'rtl' : 'ltr';
+    title.textContent = currentLang === 'fa' ? 'فروشگاه ImTheApp' : 'ImTheApp Store';
     renderApps();
   });
 
@@ -139,7 +150,8 @@
       renderApps();
     })
     .catch(() => {
-      appList.innerHTML = '<p style="text-align:center; color:red;">Failed to load apps data.</p>';
+      appList.innerHTML = '<p style="text-align:center; color:red;">⚠️ ' + 
+        (currentLang === 'fa' ? 'خطا در بارگذاری برنامه‌ها' : 'Failed to load apps data.') + '</p>';
     });
 </script>
 
