@@ -57,19 +57,19 @@
 <div id="appList">Loading...</div>
 
 <script>
-  const appsUrl = 'apps.json';
-  let appsData = [];
-  let currentVersion = '6';
-  let currentLang = 'en';
+  var appsUrl = 'apps.json'; // your merged JSON file
+  var appsData = [];
+  var currentVersion = '6';
+  var currentLang = 'en';
 
-  const tabs = document.querySelectorAll('.tab-button');
-  const appList = document.getElementById('appList');
-  const searchInput = document.getElementById('searchInput');
-  const langSelect = document.getElementById('langSelect');
+  var tabs = document.getElementsByClassName('tab-button');
+  var appList = document.getElementById('appList');
+  var searchInput = document.getElementById('searchInput');
+  var langSelect = document.getElementById('langSelect');
 
   function loadApps() {
-    const xhr = new XMLHttpRequest();
-    xhr.open('GET', appsUrl + '?nocache=' + new Date().getTime(), true);
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', appsUrl + '?nocache=' + new Date().getTime(), true); // prevent cache
     xhr.onreadystatechange = function () {
       if (xhr.readyState === 4) {
         if (xhr.status === 200) {
@@ -77,95 +77,107 @@
             appsData = JSON.parse(xhr.responseText);
             renderApps();
           } catch (e) {
-            appList.innerHTML = '<p style="text-align:center; color:red;">⚠️ ' +
-              (currentLang === 'fa' ? 'خطا در پردازش برنامه‌ها' : 'Error parsing app data.') + '</p>';
+            appList.innerHTML = '<p style="color:red;text-align:center;">⚠️ Error parsing app data</p>';
           }
         } else {
-          appList.innerHTML = '<p style="text-align:center; color:red;">⚠️ ' +
-            (currentLang === 'fa' ? 'خطا در بارگذاری برنامه‌ها' : 'Failed to load apps data.') + '</p>';
+          appList.innerHTML = '<p style="color:red;text-align:center;">⚠️ Failed to load apps data</p>';
         }
       }
     };
     xhr.send();
   }
 
+  function getIcon(app) {
+    // if JSON already has icon
+    if (app.icon && app.icon.indexOf('placeholder') === -1) return app.icon;
+    // fallback to DuckDuckGo image proxy (lightweight)
+    var q = encodeURIComponent(app.name_en + " app icon");
+    return "https://duckduckgo.com/i/favicons/raw/" + q + ".ico";
+  }
+
   function renderApps() {
-    const searchTerm = searchInput.value.toLowerCase();
+    var searchTerm = searchInput.value.toLowerCase();
     appList.innerHTML = '';
-    const filtered = appsData.filter(app => {
+    var filtered = [];
+
+    for (var i = 0; i < appsData.length; i++) {
+      var app = appsData[i];
+      var check = false;
       if (currentVersion === '7-8') {
-        return (app.ios_version === '7' || app.ios_version === '8') &&
-               (currentLang === 'en' ? app.name_en.toLowerCase().includes(searchTerm)
-                                     : app.name_fa.toLowerCase().includes(searchTerm));
+        if (app.ios_version === '7' || app.ios_version === '8') check = true;
       } else {
-        return app.ios_version === currentVersion &&
-               (currentLang === 'en' ? app.name_en.toLowerCase().includes(searchTerm)
-                                     : app.name_fa.toLowerCase().includes(searchTerm));
+        if (app.ios_version === currentVersion) check = true;
       }
-    });
+      if (check) {
+        var name = (currentLang === 'en') ? app.name_en : app.name_fa;
+        if (name.toLowerCase().indexOf(searchTerm) !== -1) filtered.push(app);
+      }
+    }
+
     if (filtered.length === 0) {
       appList.innerHTML = '<p style="text-align:center; color:#888;">' +
         (currentLang === 'fa' ? 'برنامه‌ای یافت نشد' : 'No apps found') + '</p>';
       return;
     }
-    filtered.forEach(app => {
-      const appDiv = document.createElement('div');
+
+    for (var j = 0; j < filtered.length; j++) {
+      var app = filtered[j];
+      var appDiv = document.createElement('div');
       appDiv.className = 'app-item';
 
-      const icon = document.createElement('img');
-      icon.src = app.icon;
+      var icon = document.createElement('img');
+      icon.src = getIcon(app);
       icon.alt = app.name_en + ' icon';
       icon.className = 'app-icon';
       appDiv.appendChild(icon);
 
-      const info = document.createElement('div');
+      var info = document.createElement('div');
       info.className = 'app-info';
 
-      const name = document.createElement('p');
-      name.className = 'app-name';
-      name.textContent = currentLang === 'en' ? app.name_en : app.name_fa;
-      info.appendChild(name);
+      var nameEl = document.createElement('p');
+      nameEl.className = 'app-name';
+      nameEl.innerHTML = (currentLang === 'en') ? app.name_en : app.name_fa;
+      info.appendChild(nameEl);
 
-      const source = document.createElement('p');
+      var source = document.createElement('p');
       source.className = 'app-source';
-      source.textContent = (currentLang === 'fa' ? 'منبع: ' : 'Source: ') + app.source;
+      source.innerHTML = (currentLang === 'fa' ? 'منبع: ' : 'Source: ') + app.source;
       info.appendChild(source);
 
       appDiv.appendChild(info);
 
-      const btn = document.createElement('button');
+      var btn = document.createElement('button');
       btn.className = 'install-button';
-      btn.textContent = currentLang === 'en' ? 'Install' : 'نصب';
-      btn.onclick = () => {
-        const plistUrl = 'https://iamtheapp-store.kesug.com/plist.php?name=' +
-                         encodeURIComponent(app.name_en) +
-                         '&url=' + encodeURIComponent(app.install_url);
-        window.location.href = 'itms-services://?action=download-manifest&url=' + encodeURIComponent(plistUrl);
-      };
+      btn.innerHTML = (currentLang === 'en') ? 'Install' : 'نصب';
+      btn.onclick = (function(url) {
+        return function() { window.location.href = url; };
+      })(app.install_url);
       appDiv.appendChild(btn);
 
       appList.appendChild(appDiv);
-    });
+    }
   }
 
-  tabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-      tabs.forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
-      currentVersion = tab.dataset.version;
-      renderApps();
-    });
-  });
+  for (var k = 0; k < tabs.length; k++) {
+    tabs[k].onclick = (function(tab) {
+      return function() {
+        for (var t = 0; t < tabs.length; t++) tabs[t].className = tabs[t].className.replace(' active', '');
+        tab.className += ' active';
+        currentVersion = tab.getAttribute('data-version');
+        renderApps();
+      };
+    })(tabs[k]);
+  }
 
-  searchInput.addEventListener('input', renderApps);
+  searchInput.onkeyup = renderApps;
 
-  langSelect.addEventListener('change', () => {
+  langSelect.onchange = function() {
     currentLang = langSelect.value;
-    document.body.dir = currentLang === 'fa' ? 'rtl' : 'ltr';
-    document.getElementById('title').textContent =
-      currentLang === 'fa' ? 'فروشگاه ImTheApp' : 'ImTheApp Store';
+    document.body.dir = (currentLang === 'fa') ? 'rtl' : 'ltr';
+    document.getElementById('title').innerHTML =
+      (currentLang === 'fa' ? 'فروشگاه ImTheApp' : 'ImTheApp Store');
     renderApps();
-  });
+  };
 
   loadApps();
 </script>
